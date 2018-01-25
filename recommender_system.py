@@ -27,7 +27,6 @@ class recommender_system(object):
         return pred
     def predict_model(self, R, d, type='MSE'):
         return None
-
     def MSE(self,R,d):
         # Replace the nan values by zero
         index=np.isnan(R)
@@ -38,9 +37,8 @@ class recommender_system(object):
         s[d:]=0
         out = np.dot(U, np.dot(np.diag(s), V))
         Rnew[index]=out[index]
-        self.prediction = out
-        MSE=np.linalg.norm(out-Rnew)**2
-        return MSE/(col*row-sum(sum(index)))
+        prediction = out
+        return prediction
     def MLF(self, R, d, Lambda):
         row, col= R.shape
         U =  np.random.rand(row, d)
@@ -51,9 +49,8 @@ class recommender_system(object):
             U=self.updateU(Rnew,V,Lambda)
             V=self.updateV(Rnew,U,Lambda)
         out = np.dot(U,V)
-        self.prediction = out
-        MSE=self.rmse(out, Rnew)
-        return MSE/(col*row-sum(sum(index)))
+        prediction = out
+        return prediction
     def updateU(self, R,V,Lambda):
         U = np.linalg.solve(np.dot(V, V.T)+Lambda*np.eye(len(V)), np.dot(V, R.T))        
         return U.T
@@ -64,14 +61,6 @@ class recommender_system(object):
         prediction = prediction[ground_truth.nonzero()].flatten() 
         ground_truth = ground_truth[ground_truth.nonzero()].flatten()
         return sqrt(mean_squared_error(prediction, ground_truth))
-    def validate_accuracy(self,data):
-        pred = self.prediction
-        N = data.shape[0]
-        n = 0
-        for row in data:
-            if (pred[row[0]-1, row[1]-1]>0 and row[2] == 1) or (pred[row[0]-1, row[1]-1]<=0 and row[2] == 0):
-                n += 1
-        return float(n)/N
 
 
 
