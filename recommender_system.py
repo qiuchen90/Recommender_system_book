@@ -11,7 +11,7 @@ from scipy.sparse import csr_matrix
 class recommender_system(object):
     def __init__(self):
         self.prediction = None
-    def predict_content(self, R, uid = None, iid = None, type='user'):
+    def predict_content(self, R, type='user'):
         # User pairwise_distances function from sklearn to calculate the cosine
         # similarity between users and items respectively
         if type == 'user':
@@ -19,11 +19,12 @@ class recommender_system(object):
             mean_user_rating = R.mean(axis=1) 
             #You use np.newaxis so that mean_user_rating has same format as ratings
             ratings_diff = (R - mean_user_rating[:, np.newaxis]) 
-#            pred = mean_user_rating[:, np.newaxis] + similarity.dot(ratings_diff) / np.array([np.abs(similarity).sum(axis=1)]).T
-            pred = mean_user_rating[uid] + similarity[uid, :].dot(ratings_diff) / np.sum(np.abs(similarity[uid, :]))
+            pred = mean_user_rating[:, np.newaxis] + similarity.dot(ratings_diff) / np.array([np.abs(similarity).sum(axis=1)]).T
+#            pred = mean_user_rating[uid] + similarity[uid, :].dot(ratings_diff) / np.sum(np.abs(similarity[uid, :]))
         elif type == 'item':
             similarity = pairwise_distances(csr_matrix(R).T, metric='cosine')
-            pred = R[uid,:].dot(similarity) / np.abs(similarity).sum(axis=0, keepdims=True)
+ #           pred = R[uid,:].dot(similarity) / np.abs(similarity).sum(axis=0, keepdims=True)
+            pred = R.dot(similarity) / np.array([np.abs(similarity).sum(axis=1)])
         return pred
     def predict_model(self, R, d, type='MSE'):
         return None
